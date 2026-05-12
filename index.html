@@ -54,14 +54,41 @@
                 style="width: clamp(60px, 10vw, 200px); object-fit: contain; transform: translateY(30%);">
 
             <h1
-                style="font-size: clamp(2.5rem, 6vw, 6rem); font-weight: 600; line-height: 1.0; max-width: 18ch; text-align: center; color: #111;">
-                Gabble is an app where you get paid to debate AIs or other users.</h1>
+                style="font-size: clamp(2.5rem, 3vw, 4rem); font-weight: 600; line-height: 1.1; max-width: 27ch; text-align: center; color: #111;">
+                Gabble is a platform where users get paid to argue against humans or AI agents via real-time video and
+                audio.
+
+            </h1>
+
+            <h1
+                style="font-size: clamp(1rem, 1.3vw, 4rem); font-weight: 400; line-height: 1.0; max-width: 300ch; text-align: center; color: #999;">
+
+
+                The result is a proprietary dataset that is used for frontier model improvement. 
+
+            </h1>
+
         </div>
         <div class="page">
             <video id="slide2-video" src="flow1.mp4" muted playsinline preload="auto"
                 style="max-height: 80vh; max-width: 90%; object-fit: contain;"></video>
         </div>
-        <div class="page"></div>
+
+
+        <div id="slide-humandebate-page" class="page" style="position: relative; cursor: pointer;">
+            <video id="slide-humandebate-video" src="humandebate.mov" playsinline preload="auto"
+                style="max-height: 80vh; max-width: 90%; object-fit: contain;"></video>
+            <div id="slide-humandebate-play"
+                style="position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; pointer-events: none;">
+                <div
+                    style="width: 72px; height: 72px; border-radius: 50%; background: rgba(255,255,255,0.85); display: flex; justify-content: center; align-items: center;">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="#111">
+                        <polygon points="6,3 20,12 6,21" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+
         <div id="slide3-page" class="page" style="position: relative; cursor: pointer;">
             <video id="slide3-video" src="aidebate.mov" playsinline preload="auto"
                 style="max-height: 80vh; max-width: 90%; object-fit: contain;"></video>
@@ -115,15 +142,18 @@
         const video = document.getElementById('slide2-video');
 
         const video3 = document.getElementById('slide3-video');
+        const videoHuman = document.getElementById('slide-humandebate-video');
 
         function updateVideoRadius() {
             if (video) video.style.borderRadius = (video.offsetHeight * 0.08) + 'px';
             if (video3) video3.style.borderRadius = (video3.offsetHeight * 0.08) + 'px';
+            if (videoHuman) videoHuman.style.borderRadius = (videoHuman.offsetHeight * 0.08) + 'px';
         }
         window.addEventListener('load', updateVideoRadius);
         window.addEventListener('resize', updateVideoRadius);
         video.addEventListener('loadedmetadata', updateVideoRadius);
         video3.addEventListener('loadedmetadata', updateVideoRadius);
+        videoHuman.addEventListener('loadedmetadata', updateVideoRadius);
 
         // slide2: muted autoplay observer
         new IntersectionObserver((entries) => {
@@ -137,6 +167,34 @@
                 }
             });
         }, { threshold: 0.5 }).observe(video);
+
+        // humandebate: unmuted — needs user gesture
+        const humanPlayBtn = document.getElementById('slide-humandebate-play');
+        const humanPage = document.getElementById('slide-humandebate-page');
+        new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (!entry.isIntersecting) {
+                    videoHuman.pause();
+                    videoHuman.currentTime = 0;
+                    humanPlayBtn.style.display = 'flex';
+                }
+            });
+        }, { threshold: 0.5 }).observe(videoHuman);
+
+        humanPage.addEventListener('click', () => {
+            if (videoHuman.paused) {
+                humanPlayBtn.style.display = 'none';
+                videoHuman.volume = 0.2;
+                videoHuman.currentTime = 0;
+                videoHuman.play();
+            }
+        });
+
+        humanPlayBtn.addEventListener('click', () => {
+            humanPlayBtn.style.display = 'none';
+            videoHuman.currentTime = 0;
+            videoHuman.play();
+        });
 
         // slide3: unmuted — needs user gesture
         const playBtn = document.getElementById('slide3-play');
